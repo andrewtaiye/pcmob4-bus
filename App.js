@@ -13,6 +13,7 @@ export default function App() {
   const BUSSTOP_URL = "https://arrivelah2.busrouter.sg/?id=12079";
 
   function loadBusStopData() {
+    setLoading(true);
     fetch(BUSSTOP_URL)
       .then((response) => response.json())
       .then((json) => {
@@ -26,6 +27,8 @@ export default function App() {
 
   useEffect(() => {
     loadBusStopData();
+    const interval = setInterval(loadBusStopData, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -36,7 +39,6 @@ export default function App() {
       </Text>
       <TouchableOpacity
         onPress={() => {
-          setLoading(true);
           loadBusStopData();
         }}
       >
