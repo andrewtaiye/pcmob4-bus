@@ -1,6 +1,5 @@
 import {
   ActivityIndicator,
-  Button,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,13 +9,19 @@ import React, { useEffect, useState } from "react";
 
 export default function App() {
   const [loading, setLoading] = useState(true);
-
+  const [arriving, setArriving] = useState("");
   const BUSSTOP_URL = "https://arrivelah2.busrouter.sg/?id=12079";
 
   function loadBusStopData() {
     fetch(BUSSTOP_URL)
       .then((response) => response.json())
-      .then((json) => console.log(json));
+      .then((json) => {
+        console.log(json);
+        const myBus = json.services.filter((bus) => bus.no == 154)[0];
+        console.log(myBus.next.time);
+        setArriving(myBus.next.time);
+        setLoading(false);
+      });
   }
 
   useEffect(() => {
@@ -27,13 +32,15 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>Bus Arrival Time:</Text>
       <Text style={styles.timeDisplay}>
-        {loading ? <ActivityIndicator size="large" /> : "Loaded"}
+        {loading ? <ActivityIndicator size="large" /> : arriving}
       </Text>
       <TouchableOpacity
-        style={[styles.button, styles.refreshBtn]}
-        onPress={() => setLoading(true)}
+        onPress={() => {
+          setLoading(true);
+          loadBusStopData();
+        }}
       >
-        Refresh!
+        <Text style={[styles.button, styles.refreshBtn]}>Refresh!</Text>
       </TouchableOpacity>
     </View>
   );
@@ -51,17 +58,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   timeDisplay: {
-    fontSize: 48,
+    fontSize: 40,
     marginTop: 20,
   },
   button: {
     padding: 15,
     marginTop: 20,
     borderRadius: 15,
-    fontSize: 24,
   },
   refreshBtn: {
     backgroundColor: "green",
     color: "white",
+    fontSize: 24,
   },
 });
