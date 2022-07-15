@@ -11,6 +11,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [arriving, setArriving] = useState("");
   const [countdown, setCountdown] = useState("");
+  // const [busService, setBusService] = useState("");
   const BUSSTOP_URL = "https://arrivelah2.busrouter.sg/?id=12079";
 
   function loadBusStopData() {
