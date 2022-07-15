@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [arriving, setArriving] = useState("");
+  const [countdown, setCountdown] = useState("");
   const BUSSTOP_URL = "https://arrivelah2.busrouter.sg/?id=12079";
 
   function loadBusStopData() {
@@ -17,10 +18,22 @@ export default function App() {
     fetch(BUSSTOP_URL)
       .then((response) => response.json())
       .then((json) => {
-        console.log(json);
-        const myBus = json.services.filter((bus) => bus.no == 154)[0];
-        console.log(myBus.next.time);
-        setArriving(myBus.next.time);
+        const myBus = json.services.filter((bus) => bus.no == 151)[0];
+        const nextTime = new Date(myBus.next.time);
+        const nextTime_h = nextTime.getHours();
+        const nextTime_m = nextTime.getMinutes();
+        const nextTime_s = nextTime.getSeconds();
+        const nextTime_display = nextTime_h
+          .toString()
+          .concat(":", nextTime_m.toString(), ":", nextTime_s.toString(), "H");
+
+        const currentTime = Date.now();
+        let timeDiff = nextTime - currentTime;
+        timeDiff = Math.floor(Math.round(timeDiff / 1000) / 60);
+
+        console.log(timeDiff, myBus.next.duration_ms);
+        setArriving(nextTime_display);
+        setCountdown(timeDiff);
         setLoading(false);
       });
   }
@@ -34,9 +47,14 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bus Arrival Time:</Text>
-      <Text style={styles.timeDisplay}>
-        {loading ? <ActivityIndicator size="large" /> : arriving}
-      </Text>
+      <View style={styles.display}>
+        <Text style={styles.timeDisplay}>
+          {loading ? <ActivityIndicator size="large" /> : arriving}
+        </Text>
+        <Text style={styles.timeDisplay}>
+          {loading ? "" : countdown < 1 ? "Arr" : `(${countdown}mins)`}
+        </Text>
+      </View>
       <TouchableOpacity
         onPress={() => {
           loadBusStopData();
@@ -59,9 +77,15 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: "bold",
   },
+  display: {
+    display: "flex",
+    flexDirection: "row",
+  },
   timeDisplay: {
     fontSize: 40,
     marginTop: 20,
+    marginHorizontal: 10,
+    textAlign: "center",
   },
   button: {
     padding: 15,
